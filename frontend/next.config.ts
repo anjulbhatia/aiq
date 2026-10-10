@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
+  /* cacheComponents off: classic dynamic routes for API-backed briefing pages */
   turbopack: {
     rules: {
       "*.css": {
