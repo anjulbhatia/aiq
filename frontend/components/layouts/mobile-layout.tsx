@@ -13,12 +13,14 @@ import { type AppRole, AppTopbar } from "@/components/aiq/app-topbar";
 import { Gauge } from "@/components/aiq/gauge";
 import {
   type MapLayers,
-  MapPlaceholder,
-} from "@/components/aiq/map-placeholder";
+  SchoolMapPreview,
+  SchoolMapView,
+} from "@/components/aiq/school-map";
 import { StatusCard } from "@/components/aiq/status-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { LEVEL_META } from "@/lib/protocol";
 import type { Briefing, ProtocolLevel, Student } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +30,7 @@ type Tab = "home" | "map" | "people" | "profile";
 export function MobileLayout({
   role,
   onRoleChange,
+  school,
   schoolName,
   locality,
   level,
@@ -42,6 +45,7 @@ export function MobileLayout({
 }: {
   role: AppRole;
   onRoleChange: (r: AppRole) => void;
+  school: { lat: number; lng: number };
   schoolName: string;
   locality: string;
   level: ProtocolLevel;
@@ -154,12 +158,11 @@ export function MobileLayout({
             onClick={() => setTab("map")}
             className="text-left transition-transform duration-200 active:scale-[0.99]"
           >
-            <MapPlaceholder
+            <SchoolMapPreview
+              role={role}
+              school={school}
               schoolName={schoolName}
               level={level}
-              layers={layers}
-              onLayersChange={onLayersChange}
-              compact
             />
           </button>
 
@@ -174,11 +177,17 @@ export function MobileLayout({
       )}
 
       {tab === "map" && (
-        <MapPlaceholder
+        <SchoolMapView
+          role={role}
+          school={school}
           schoolName={schoolName}
+          aqi={briefing.aqi}
+          headline={LEVEL_META[level].headline}
           level={level}
           layers={layers}
           onLayersChange={onLayersChange}
+          onOpenStudents={onOpenStudents}
+          zoom={13}
           className="min-h-[60dvh]"
         />
       )}

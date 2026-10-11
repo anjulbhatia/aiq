@@ -3,18 +3,17 @@
 import type { ReactNode } from "react";
 import { type AppRole, AppTopbar } from "@/components/aiq/app-topbar";
 import { FloatingActions } from "@/components/aiq/floating-actions";
-import {
-  type MapLayers,
-  MapPlaceholder,
-} from "@/components/aiq/map-placeholder";
+import { type MapLayers, SchoolMapView } from "@/components/aiq/school-map";
 import { StatusCard } from "@/components/aiq/status-card";
 import { StatusStrip } from "@/components/aiq/status-strip";
+import { LEVEL_META } from "@/lib/protocol";
 import type { Briefing, ProtocolLevel } from "@/lib/types";
 
 // Desktop SPA: map is permanent background, everything else overlays. No sidebar.
 export function DeskLayout({
   role,
   onRoleChange,
+  school,
   schoolName,
   locality,
   level,
@@ -27,6 +26,7 @@ export function DeskLayout({
 }: {
   role: AppRole;
   onRoleChange: (r: AppRole) => void;
+  school: { lat: number; lng: number };
   schoolName: string;
   locality: string;
   level: ProtocolLevel;
@@ -40,11 +40,16 @@ export function DeskLayout({
   return (
     <div className="relative hidden h-dvh flex-col gap-3 overflow-hidden p-4 md:flex">
       <div className="absolute inset-0 p-4">
-        <MapPlaceholder
+        <SchoolMapView
+          role={role}
+          school={school}
           schoolName={schoolName}
+          aqi={briefing.aqi}
+          headline={LEVEL_META[level].headline}
           level={level}
           layers={layers}
           onLayersChange={onLayersChange}
+          onOpenStudents={onOpenStudents}
           className="h-full"
         />
       </div>

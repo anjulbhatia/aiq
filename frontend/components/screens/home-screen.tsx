@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import type { AppRole } from "@/components/aiq/app-topbar";
-import type { MapLayers } from "@/components/aiq/map-placeholder";
 import { MorningBriefingSheet } from "@/components/aiq/morning-briefing-sheet";
+import type { MapLayers } from "@/components/aiq/school-map";
 import { StudentListSheet } from "@/components/aiq/student-list-sheet";
 import { UneasySheet } from "@/components/aiq/uneasy-sheet";
 import { DeskLayout } from "@/components/layouts/desk-layout";
@@ -78,6 +78,7 @@ export function HomeScreen() {
         <DeskLayout
           role={role}
           onRoleChange={setRole}
+          school={{ lat: school.lat, lng: school.lng }}
           schoolName={school.name}
           locality={school.locality}
           level={briefing.level}
@@ -92,6 +93,7 @@ export function HomeScreen() {
         <MobileLayout
           role={role}
           onRoleChange={setRole}
+          school={{ lat: school.lat, lng: school.lng }}
           schoolName={school.name}
           locality={school.locality}
           level={briefing.level}
