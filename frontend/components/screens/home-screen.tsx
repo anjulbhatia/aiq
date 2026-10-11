@@ -1,47 +1,110 @@
 "use client";
 
-import Link from "next/link";
-import { Buildings, SmileyWink, Users } from "@phosphor-icons/react";
-import AppLayout from "../layouts/app-layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo, useState } from "react";
+import type { AppRole } from "@/components/aiq/app-topbar";
+import type { MapLayers } from "@/components/aiq/map-placeholder";
+import { MorningBriefingSheet } from "@/components/aiq/morning-briefing-sheet";
+import { StudentListSheet } from "@/components/aiq/student-list-sheet";
+import { UneasySheet } from "@/components/aiq/uneasy-sheet";
+import { DeskLayout } from "@/components/layouts/desk-layout";
+import { MobileLayout } from "@/components/layouts/mobile-layout";
+import { Toaster } from "@/components/ui/toast";
+import { BRIEFINGS, SCHOOLS, STUDENTS } from "@/lib/mock-data";
+import { roleTheme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
-const ROLES = [
-  { href: "/principal", title: "Principal / Admin", desc: "Morning briefing + one-click publish", icon: Buildings, theme: "theme-02" },
-  { href: "/teacher", title: "Teacher", desc: "Class risk view + uneasy reporting", icon: Users, theme: "theme-01" },
-  { href: "/parent", title: "Parent / Student", desc: "Status card + medical flags + SOS", icon: SmileyWink, theme: "theme-00" },
-];
+export function HomeScreen() {
+  const [role, setRole] = useState<AppRole>("school");
+  const [schoolId] = useState("anand-vihar");
+  const [published, setPublished] = useState(false);
+  const [layers, setLayers] = useState<MapLayers>({
+    sensors: true,
+    canopy: false,
+  });
+  const [briefingOpen, setBriefingOpen] = useState(false);
+  const [studentsOpen, setStudentsOpen] = useState(false);
+  const [uneasyOpen, setUneasyOpen] = useState(false);
+  const [uneasyId, setUneasyId] = useState<string | undefined>(undefined);
 
-export default function HomeScreen() {
+  const school = useMemo(
+    () => SCHOOLS.find((s) => s.id === schoolId) ?? SCHOOLS[0],
+    [schoolId],
+  );
+  const briefing = BRIEFINGS[school.id];
+  const students = STUDENTS.filter((s) => s.schoolId === school.id);
+
+  const openUneasy = (id?: string) => {
+    setUneasyId(id);
+    setUneasyOpen(true);
+  };
+
+  const sheets = (
+    <>
+      <MorningBriefingSheet
+        open={briefingOpen}
+        onOpenChange={setBriefingOpen}
+        briefing={briefing}
+        published={published}
+        onPublish={() => setPublished(true)}
+      />
+      <StudentListSheet
+        open={studentsOpen}
+        onOpenChange={setStudentsOpen}
+        students={students}
+        onUneasy={(id) => {
+          setStudentsOpen(false);
+          openUneasy(id);
+        }}
+      />
+      <UneasySheet
+        key={uneasyId ?? "none"}
+        open={uneasyOpen}
+        onOpenChange={setUneasyOpen}
+        students={students}
+        presetId={uneasyId}
+        side="bottom"
+      />
+    </>
+  );
+
   return (
-    <AppLayout role="home" theme="theme-00">
-      <Card className="rounded-3xl">
-        <CardHeader>
-          <CardTitle className="font-heading text-2xl font-bold">Protect school day from bad air</CardTitle>
-          <CardDescription>Live AQI + weather + urban form → clear daily protocol. Pick a role to preview.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-2.5">
-          {ROLES.map((r) => {
-            const Icon = r.icon;
-            return (
-              <Link key={r.href + r.title} href={r.href} className={r.theme}>
-                <Button variant="outline" className="h-auto w-full justify-start gap-3 rounded-2xl px-4 py-3.5 text-left transition-all duration-200 hover:scale-[1.01] hover:shadow-md active:scale-[0.99]">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <Icon className="size-5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold">{r.title}</span>
-                    <span className="block truncate text-xs font-normal text-muted-foreground">{r.desc}</span>
-                  </span>
-                </Button>
-              </Link>
-            );
-          })}
-        </CardContent>
-      </Card>
-      <p className="px-1 text-center text-xs text-muted-foreground">
-        Seeded Delhi schools · hierarchy: Authority → Institution → Parent → Student
-      </p>
-    </AppLayout>
+    <Toaster>
+      <div
+        className={cn(
+          "min-h-dvh bg-background text-foreground",
+          roleTheme(role),
+        )}
+      >
+        <DeskLayout
+          role={role}
+          onRoleChange={setRole}
+          schoolName={school.name}
+          locality={school.locality}
+          level={briefing.level}
+          briefing={briefing}
+          layers={layers}
+          onLayersChange={setLayers}
+          onOpenBriefing={() => setBriefingOpen(true)}
+          onOpenStudents={() => setStudentsOpen(true)}
+          sheets={sheets}
+        />
+
+        <MobileLayout
+          role={role}
+          onRoleChange={setRole}
+          schoolName={school.name}
+          locality={school.locality}
+          level={briefing.level}
+          briefing={briefing}
+          students={students}
+          layers={layers}
+          onLayersChange={setLayers}
+          onOpenBriefing={() => setBriefingOpen(true)}
+          onOpenStudents={() => setStudentsOpen(true)}
+          onUneasy={openUneasy}
+          sheets={sheets}
+        />
+      </div>
+    </Toaster>
   );
 }

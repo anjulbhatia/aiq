@@ -1,48 +1,59 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { SunHorizon, Thermometer, Wind } from "@phosphor-icons/react";
+import { Card, CardContent } from "@/components/ui/card";
 import { LEVEL_META } from "@/lib/protocol";
 import type { Briefing } from "@/lib/types";
 
-export default function StatusCard({ briefing }: { briefing: Briefing }) {
+const HEADLINE: Record<string, string> = {
+  Good: "Safe Outside",
+  Moderate: "Safe Outside",
+  Poor: "Better Inside",
+  VeryPoor: "Better Inside",
+  Severe: "Stay Inside",
+};
+
+export function StatusCard({
+  briefing,
+  locality,
+}: {
+  briefing: Briefing;
+  locality: string;
+}) {
   const meta = LEVEL_META[briefing.level];
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Today: {meta.headline}</CardTitle>
-          <span className={`inline-block size-3 rounded-full ${meta.dot}`} />
-        </div>
-        <p className="text-sm text-muted-foreground">
-          AQI {briefing.aqi} · PM2.5 {briefing.pm25} · {briefing.tempC}°C · Wind {briefing.windKph} kph {briefing.windDir}
+    <Card className="gap-4 p-6 sm:p-8">
+      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <SunHorizon className="size-4" /> Sun, Jul 24 · {locality}
+        </span>
+        <span className="inline-flex items-center gap-3 tabular-nums">
+          <span className="inline-flex items-center gap-1">
+            <Thermometer className="size-4" />
+            {briefing.tempC}°C
+          </span>
+          <span className="font-semibold text-foreground">
+            {briefing.aqi} AQI
+          </span>
+        </span>
+      </div>
+      <CardContent className="p-0">
+        <p className="font-heading text-4xl font-semibold tracking-tight text-primary sm:text-5xl">
+          {HEADLINE[briefing.level]}
         </p>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex items-end gap-3">
-          <p className="font-heading text-5xl font-bold leading-none">{briefing.aqi}</p>
-          <Badge className={meta.classes}>{meta.label}</Badge>
-        </div>
-        <ul className="grid gap-2">
-          {briefing.actions.map((a) => (
-            <li
-              key={a.key}
-              className="flex items-center justify-between rounded-xl bg-muted px-3 py-2 text-sm"
-            >
-              <span>{a.label}</span>
-              <span className="text-xs uppercase text-muted-foreground">{a.state}</span>
-            </li>
-          ))}
-        </ul>
-        <details className="rounded-xl border p-3 text-sm">
-          <summary className="cursor-pointer font-medium">Why this recommendation?</summary>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-muted-foreground">
-            {briefing.reasons.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-            <li>
-              Tomorrow forecast: AQI {briefing.forecastTomorrow.aqi} ({briefing.forecastTomorrow.level})
-            </li>
-          </ul>
-        </details>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {meta.headline} · PM2.5 {briefing.pm25} · {briefing.windKph} kph{" "}
+          {briefing.windDir} wind. Outdoor exertion{" "}
+          {briefing.level === "Good" || briefing.level === "Moderate"
+            ? "okay"
+            : "limited"}{" "}
+          today.
+        </p>
+        <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Wind className="size-3.5" /> Built-up{" "}
+          {Math.round(briefing.builtUpRatio * 100)}% · Canopy{" "}
+          {Math.round(briefing.canopyDensity * 100)}%
+        </p>
       </CardContent>
     </Card>
   );
