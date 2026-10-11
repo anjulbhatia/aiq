@@ -3,7 +3,9 @@
 import { useState } from "react";
 import type { AppRole } from "@/components/aiq/app-topbar";
 import { AqiTrendChart } from "@/components/aiq/aqi-trend-chart";
+import { useDataReady } from "@/components/aiq/app-state";
 import { ExposureChart } from "@/components/aiq/exposure-chart";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -50,6 +52,7 @@ export function PrincipalAside({
   const [draft, setDraft] = useState(
     `Tomorrow: indoor PE only. N95 outdoors. Windows closed till 2pm.`,
   );
+  const ready = useDataReady();
 
   const scrollToPlanning = () => {
     document
@@ -145,7 +148,14 @@ export function PrincipalAside({
           <p className="font-heading text-base font-semibold">
             7-day exposure
           </p>
-          <ExposureChart days={history} />
+          {!ready ? (
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-36 w-full" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+          ) : (
+            <ExposureChart days={history} />
+          )}
         </CardContent>
       </Card>
 

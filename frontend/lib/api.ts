@@ -36,9 +36,25 @@ function auth(role: AppRole, schoolId: string) {
   };
 }
 
+// Module identity so every call carries backend auth (else live 401s).
+// AppStateProvider configures this on role/school change.
+let identity: { role: AppRole; schoolId: string } = {
+  role: "school",
+  schoolId: "anand-vihar",
+};
+
+export function configureApi(id: { role: AppRole; schoolId: string }) {
+  identity = id;
+}
+
+function headers(): Record<string, string> {
+  return auth(identity.role, identity.schoolId);
+}
+
 export async function getBriefing(schoolId: string): Promise<Briefing> {
   try {
     const res = await fetch(`${BASE}/api/briefing/${schoolId}`, {
+      headers: headers(),
       cache: "no-store",
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
@@ -50,12 +66,12 @@ export async function getBriefing(schoolId: string): Promise<Briefing> {
   }
 }
 
-export async function reportUneasy(studentId: string): Promise<{ ok: boolean }> {
+export async function reportUneasy(studentId: string, note = ""): Promise<{ ok: boolean }> {
   try {
     const res = await fetch(`${BASE}/api/report-uneasy`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ studentId }),
+      headers: headers(),
+      body: JSON.stringify({ studentId, note }),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
     return { ok: true };
@@ -67,6 +83,7 @@ export async function reportUneasy(studentId: string): Promise<{ ok: boolean }> 
 export async function getHistory(schoolId: string): Promise<HistoryDay[]> {
   try {
     const res = await fetch(`${BASE}/api/history/${schoolId}?days=7`, {
+      headers: headers(),
       cache: "no-store",
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
@@ -84,6 +101,7 @@ export async function getAttendance(
 ): Promise<AttendanceRoster> {
   try {
     const res = await fetch(`${BASE}/api/attendance/${schoolId}`, {
+      headers: headers(),
       cache: "no-store",
     });
     if (!res.ok) throw new Error(`API ${res.status}`);
@@ -102,7 +120,7 @@ export async function postDaylog(input: {
   try {
     const res = await fetch(`${BASE}/api/daylog`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: headers(),
       body: JSON.stringify(input),
     });
     if (!res.ok) throw new Error(`API ${res.status}`);

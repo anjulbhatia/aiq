@@ -4,6 +4,7 @@ import { Bell, CaretDown, SignOut, UserCircle } from "@phosphor-icons/react";
 import { type ReactNode, useState } from "react";
 import type { AppRole } from "@/components/aiq/app-topbar";
 import { AnalysisPanel } from "@/components/aiq/analysis-panel";
+import { useDataReady } from "@/components/aiq/app-state";
 import {
   BriefingPopover,
   UneasyPopover,
@@ -136,6 +137,7 @@ export function DeskLayout({
   sheets: ReactNode;
 }) {
   const [tab, setTab] = useState("overview");
+  const ready = useDataReady();
   const isPrincipal = role === "school" || role === "authority";
 
   if (!isPrincipal) {
@@ -261,6 +263,7 @@ export function DeskLayout({
                 teachers={teachers}
                 students={students}
                 attendance={attendance.teachers}
+                loading={!ready}
                 onUneasy={() => {}}
                 uneasyTrigger={(_id, label) => (
                   <UneasyPopover
@@ -280,6 +283,7 @@ export function DeskLayout({
                 teachers={teachers}
                 students={students}
                 attendance={attendance.students}
+                loading={!ready}
                 onUneasy={() => {}}
                 uneasyTrigger={(id, label) => (
                   <UneasyPopover

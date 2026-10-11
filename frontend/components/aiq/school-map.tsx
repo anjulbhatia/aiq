@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type * as MapLibreGL from "maplibre-gl";
 import { House, MapPin, Stack, TreeEvergreen } from "@phosphor-icons/react";
+import { useAppState } from "@/components/aiq/app-state";
+import { LocationSearch } from "@/components/aiq/location-search";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,12 +75,17 @@ export const LEVEL_HEX: Record<ProtocolLevel, string> = {
 
 // Demo stand-in until login provides real home coords: parent/student
 // centers ~500m off the school so home-vs-school context reads on map.
+// A granted geolocation (userLocation) always wins.
 const HOME_OFFSET = { dLat: 0.0045, dLng: 0.0035 };
 
 export function resolveMapCenter(
   role: AppRole,
   school: { lat: number; lng: number },
+  userLocation?: { lat: number; lng: number } | null,
 ) {
+  if (userLocation) {
+    return { lat: userLocation.lat, lng: userLocation.lng, home: true };
+  }
   if (role === "parent" || role === "student") {
     return {
       lat: school.lat + HOME_OFFSET.dLat,
@@ -168,11 +175,19 @@ export function SchoolMapView({
   minMapHeight?: string;
   className?: string;
 }) {
-  const center = resolveMapCenter(role, school);
+  const { userLocation, setUserLocation } = useAppState();
+  const center = resolveMapCenter(role, school, userLocation);
   const hex = LEVEL_HEX[level];
   const [basemap, setBasemap] = useState<BasemapId>("bright");
   const [tilt, setTilt] = useState(false);
+  const [pin, setPin] = useState<{ lng: number; lat: number; name: string } | null>(null);
+  const mapRef = useRef<MapLibreGL.Map | null>(null);
   const style = BASEMAPS[basemap];
+
+  const pickPlace = (lng: number, lat: number, name: string) => {
+    setPin({ lng, lat, name });
+    mapRef.current?.flyTo({ center: [lng, lat], zoom: 14, duration: 1200 });
+  };
 
   return (
     <div
@@ -182,6 +197,7 @@ export function SchoolMapView({
       )}
     >
       <MapRoot
+        ref={mapRef}
         key={`${center.lng}-${center.lat}-${zoom}-${basemap}-${tilt}`}
         center={[center.lng, center.lat]}
         zoom={zoom}
@@ -249,16 +265,34 @@ export function SchoolMapView({
           </MapMarker>
         )}
 
-        <MapControls position="bottom-right" showZoom showFullscreen />
+        {pin && (
+          <MapMarker longitude={pin.lng} latitude={pin.lat}>
+            <MarkerContent>
+              <span className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-white">
+                <MapPin weight="fill" className="size-4" />
+              </span>
+              <MarkerLabel position="bottom">{pin.name}</MarkerLabel>
+            </MarkerContent>
+          </MapMarker>
+        )}
+
+        <MapControls
+          position="bottom-right"
+          showZoom
+          showFullscreen
+          showLocate
+          onLocate={(c) => setUserLocation({ lat: c.latitude, lng: c.longitude })}
+        />
       </MapRoot>
 
-      {layers.canopy && (
-        <div className="absolute top-4 left-4">
+      <div className="absolute top-4 left-4 flex flex-col items-start gap-1.5">
+        <LocationSearch onPick={pickPlace} />
+        {layers.canopy && (
           <Badge variant="secondary" className="rounded-full bg-background/90">
             <TreeEvergreen className="size-3" /> Canopy
           </Badge>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="absolute top-4 right-4">
         <DropdownMenu>
@@ -332,7 +366,8 @@ export function SchoolMapPreview({
   level: ProtocolLevel;
   className?: string;
 }) {
-  const center = resolveMapCenter(role, school);
+  const { userLocation } = useAppState();
+  const center = resolveMapCenter(role, school, userLocation);
   return (
     <div
       className={cn(

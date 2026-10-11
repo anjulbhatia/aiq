@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -20,6 +21,7 @@ export function RollTable({
   teachers,
   students,
   attendance,
+  loading = false,
   onUneasy,
   uneasyTrigger,
 }: {
@@ -27,6 +29,7 @@ export function RollTable({
   teachers: Teacher[];
   students: Student[];
   attendance: AttendancePerson[];
+  loading?: boolean;
   onUneasy: (id?: string) => void;
   uneasyTrigger?: (studentId: string, label: string) => React.ReactNode;
 }) {
@@ -45,6 +48,14 @@ export function RollTable({
         <span className="text-xs text-muted-foreground tabular-nums">{sub}</span>
       </CardHeader>
       <CardContent className="min-h-0">
+        {loading ? (
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-3/4" />
+          </div>
+        ) : (
         <div className="max-h-[52dvh] overflow-y-auto">
           {kind === "teachers" ? (
             <Table>
@@ -126,6 +137,7 @@ export function RollTable({
             </Table>
           )}
         </div>
+        )}
       </CardContent>
     </Card>
   );

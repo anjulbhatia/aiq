@@ -12,6 +12,7 @@ import {
 import type { ReactNode } from "react";
 import type { AppRole } from "@/components/aiq/app-topbar";
 import { AnalysisPanel } from "@/components/aiq/analysis-panel";
+import { useAppState, useDataReady } from "@/components/aiq/app-state";
 import { AppTopbar } from "@/components/aiq/app-topbar";
 import { EmergencyButton } from "@/components/aiq/emergency-button";
 import { ExposureChart } from "@/components/aiq/exposure-chart";
@@ -21,6 +22,8 @@ import { StatusCard } from "@/components/aiq/status-card";
 import { WaffleBoard } from "@/components/aiq/waffle-board";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/components/ui/toast";
 import type { MapLayers } from "@/components/aiq/school-map";
 import { LEVEL_META } from "@/lib/protocol";
 import type {
@@ -90,6 +93,23 @@ export function MobileLayout({
   const uneasyCount = students.filter((s) => s.status === "uneasy").length;
   const isPrincipal = role === "school" || role === "authority";
   const router = useRouter();
+  const ready = useDataReady();
+  const { userLocation, setUserLocation } = useAppState();
+
+  const askLocation = () => {
+    if (!("geolocation" in navigator)) {
+      toast.add({ title: "Geolocation unavailable", type: "warning" });
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        toast.add({ title: "Location set", description: "Map centers on you now.", type: "success" });
+      },
+      () => toast.add({ title: "Location denied", description: "Using school area.", type: "warning" }),
+      { timeout: 10000 },
+    );
+  };
 
   return (
     <div
@@ -126,6 +146,14 @@ export function MobileLayout({
                 Check map
               </Button>
             </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-1 w-full text-xs"
+              onClick={askLocation}
+            >
+              {userLocation ? "Location set ✓" : "Use my location"}
+            </Button>
           </CardContent>
         </Card>
         <Card>
@@ -171,7 +199,14 @@ export function MobileLayout({
 
       <Card>
         <CardContent className="p-4">
-          <ExposureChart days={history} />
+          {!ready ? (
+            <div className="flex flex-col gap-2">
+              <Skeleton className="h-36 w-full" />
+              <Skeleton className="h-3 w-2/3" />
+            </div>
+          ) : (
+            <ExposureChart days={history} />
+          )}
         </CardContent>
       </Card>
 
@@ -183,7 +218,15 @@ export function MobileLayout({
             <p className="text-sm font-medium">
               Class attendance · {teachers[0]?.className ?? ""}
             </p>
-            <WaffleBoard people={attendance.students} dates={attendance.dates} />
+            {!ready ? (
+              <div className="flex flex-col gap-1.5">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-3/4" />
+              </div>
+            ) : (
+              <WaffleBoard people={attendance.students} dates={attendance.dates} />
+            )}
           </CardContent>
         </Card>
       )}

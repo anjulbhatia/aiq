@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import type { AppRole } from "@/components/aiq/app-topbar";
-import { getAttendance, getHistory } from "@/lib/api";
+import { getAttendance, getHistory, configureApi } from "@/lib/api";
 import {
   BRIEFINGS,
   SCHOOLS,
@@ -32,6 +32,9 @@ interface AppState {
   teachers: typeof TEACHERS;
   history: ReturnType<typeof historyFor>;
   attendance: AttendanceRoster;
+  dataReady: boolean;
+  userLocation: { lat: number; lng: number } | null;
+  setUserLocation: (l: { lat: number; lng: number } | null) => void;
   themeClass: string;
 }
 
@@ -73,16 +76,31 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
 
   // Live history/attendance when the backend is up, seeded mocks offline.
-  const [history, setHistory] = useState(() => historyFor(briefing));
-  const [attendance, setAttendance] = useState(() => attendanceFor(school.id));
+  // Null until first settle so surfaces can render skeletons.
+  const [history, setHistory] = useState<ReturnType<typeof historyFor> | null>(null);
+  const [attendance, setAttendance] = useState<AttendanceRoster | null>(null);
+  const [dataReady, setDataReady] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  useEffect(() => {
+    configureApi({ role, schoolId });
+  }, [role, schoolId]);
+
   useEffect(() => {
     let live = true;
-    getHistory(school.id).then((d) => live && setHistory(d));
-    getAttendance(school.id).then((d) => live && setAttendance(d));
+    setDataReady(false);
+    Promise.all([getHistory(school.id), getAttendance(school.id)]).then(
+      ([h, a]) => {
+        if (!live) return;
+        setHistory(h);
+        setAttendance(a);
+        setDataReady(true);
+      },
+    );
     return () => {
       live = false;
     };
-  }, [school.id, briefing]);
+  }, [school.id]);
 
   const value: AppState = {
     role,
@@ -93,8 +111,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     briefing,
     students,
     teachers,
-    history,
-    attendance,
+    history: history ?? historyFor(briefing),
+    attendance: attendance ?? attendanceFor(school.id),
+    dataReady,
+    userLocation,
+    setUserLocation,
     themeClass: roleTheme(role),
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -104,4 +125,8 @@ export function useAppState(): AppState {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useAppState must be used within AppStateProvider");
   return ctx;
+}
+
+export function useDataReady(): boolean {
+  return useAppState().dataReady;
 }

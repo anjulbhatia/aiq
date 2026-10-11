@@ -5,6 +5,7 @@ import { ChartLine, Spinner } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { AppRole } from "@/components/aiq/app-topbar";
 import { getAnalysis } from "@/lib/api";
 import type { AnalysisResult, Briefing } from "@/lib/types";
@@ -54,12 +55,20 @@ export function AnalysisPanel({
         </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 text-sm">
-        {!result && (
+        {!result && !running && (
           <p className="text-muted-foreground">
             Runs the backend pipeline on this school: briefing join, urban
             form, exposure verdicts, v0 vs v1 model read, and a live eval
             snapshot. Falls back to offline mock without the API.
           </p>
+        )}
+        {running && !result && (
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-2/3" />
+          </div>
         )}
         {result && (
           <>

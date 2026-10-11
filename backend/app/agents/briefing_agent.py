@@ -16,6 +16,15 @@ from ..pipeline import build_briefing
 AGENT_POLICIES = str(Path(__file__).resolve().parent.parent / "authz" / "agent.cedar")
 
 
+def _model():
+    """Bedrock default (None = SDK default); Ollama when AIQ_MODEL_PROVIDER=ollama."""
+    from ..config import settings
+    if settings.model_provider == "ollama":
+        from strands.models.ollama import OllamaModel
+        return OllamaModel(host=settings.ollama_host, model_id=settings.ollama_model)
+    return None
+
+
 def run_with_tools(system: str, prompt: str, extra_tools: list, state: dict) -> str:
     """One Strands loop with the Cedar tool-gate. Raises without creds (caller falls back).
 
@@ -41,7 +50,8 @@ def run_with_tools(system: str, prompt: str, extra_tools: list, state: dict) -> 
             "environment": c["invocation_state"].get("environment", "unknown"),
         },
     )
-    agent = Agent(system_prompt=system, tools=extra_tools, interventions=[cedar])
+    agent = Agent(system_prompt=system, tools=extra_tools, interventions=[cedar],
+                  **({"model": m} if (m := _model()) is not None else {}))
     return str(agent(prompt, invocation_state=state))
 
 SYSTEM = (
