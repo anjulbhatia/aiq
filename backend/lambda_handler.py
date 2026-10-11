@@ -51,6 +51,17 @@ def handler(event: dict, context=None) -> dict:  # noqa: ARG001
             return _resp(200, out)
         if method == "POST" and path == "/api/query":
             return _resp(200, service.ask(me, body["question"], body.get("schoolId")))
+        if method == "GET" and path.startswith("/api/analysis/"):
+            school_id = path.rsplit("/", 1)[-1]
+            qs = event.get("queryStringParameters") or {}
+            return _resp(200, service.run_analysis(me, school_id, qs.get("day")))
+        if method == "GET" and path.startswith("/api/history/"):
+            school_id = path.rsplit("/", 1)[-1]
+            qs = event.get("queryStringParameters") or {}
+            return _resp(200, service.get_history(me, school_id, int(qs.get("days", 7))))
+        if method == "GET" and path.startswith("/api/attendance/"):
+            school_id = path.rsplit("/", 1)[-1]
+            return _resp(200, service.get_attendance(me, school_id))
         return _resp(404, {"detail": "not found"})
     except KeyError as e:
         return _resp(404 if "unknown" in str(e) else 401, {"detail": str(e)})

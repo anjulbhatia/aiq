@@ -1,11 +1,40 @@
-// API client stub. Points at FastAPI service once live.
+// API client. Points at FastAPI/Lambda service once live.
 // Falls back to seeded mock data so frontend works standalone.
 
-import { BRIEFINGS } from "./mock-data";
-import type { Briefing } from "./types";
+import {
+  BRIEFINGS,
+  DEMO_ACCOUNTS,
+  analysisFor,
+  attendanceFor,
+  historyFor,
+  type AttendanceRoster,
+} from "./mock-data";
+import type { AnalysisResult, Briefing, HistoryDay } from "./types";
+import type { AppRole } from "@/components/aiq/app-topbar";
 
 const BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+// Demo identity per role so the UI authenticates against the backend
+// (Bearer email). Falls back by role, then principal anand-vihar.
+export function demoEmailFor(role: AppRole, schoolId: string): string {
+  const byRole =
+    role === "school" || role === "authority" ? "principal"
+    : role === "student" ? "parent"
+    : role;
+  return (
+    DEMO_ACCOUNTS.find((a) => a.role === byRole && a.schoolId === schoolId)?.email ??
+    DEMO_ACCOUNTS.find((a) => a.role === byRole)?.email ??
+    "principal@vidyamandir.edu"
+  );
+}
+
+function auth(role: AppRole, schoolId: string) {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${demoEmailFor(role, schoolId)}`,
+  };
+}
 
 export async function getBriefing(schoolId: string): Promise<Briefing> {
   try {
@@ -32,5 +61,70 @@ export async function reportUneasy(studentId: string): Promise<{ ok: boolean }> 
     return { ok: true };
   } catch {
     return { ok: true }; // optimistic mock
+  }
+}
+
+export async function getHistory(schoolId: string): Promise<HistoryDay[]> {
+  try {
+    const res = await fetch(`${BASE}/api/history/${schoolId}?days=7`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    const data = (await res.json()) as { days: HistoryDay[] };
+    if (data.days.length >= 7) return data.days;
+    throw new Error("history incomplete");
+  } catch {
+    const mock = BRIEFINGS[schoolId] ?? Object.values(BRIEFINGS)[0];
+    return Promise.resolve(historyFor(mock));
+  }
+}
+
+export async function getAttendance(
+  schoolId: string,
+): Promise<AttendanceRoster> {
+  try {
+    const res = await fetch(`${BASE}/api/attendance/${schoolId}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return (await res.json()) as AttendanceRoster;
+  } catch {
+    return Promise.resolve(attendanceFor(schoolId));
+  }
+}
+
+export async function postDaylog(input: {
+  studentId: string;
+  entries: string[];
+  unease: boolean;
+  note: string;
+}): Promise<{ ok: boolean }> {
+  try {
+    const res = await fetch(`${BASE}/api/daylog`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return { ok: true };
+  } catch {
+    return { ok: true }; // optimistic mock
+  }
+}
+
+export async function getAnalysis(
+  schoolId: string,
+  role: AppRole,
+  briefing: Briefing,
+): Promise<AnalysisResult> {
+  try {
+    const res = await fetch(`${BASE}/api/analysis/${schoolId}`, {
+      headers: auth(role, schoolId),
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return { ...((await res.json()) as AnalysisResult), live: true };
+  } catch {
+    return Promise.resolve({ ...analysisFor(briefing), live: false });
   }
 }

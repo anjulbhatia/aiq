@@ -55,3 +55,37 @@ export interface Student {
   flags: string[]; // e.g. ["asthma"]
   status: "ok" | "uneasy" | "absent";
 }
+
+export interface HistoryDay {
+  date: string;
+  aqi: number;
+  pm25: number;
+  pm10: number;
+  level: ProtocolLevel;
+  doseUg: number;
+}
+
+export interface AttendancePerson {
+  id: string;
+  name: string;
+  className: string;
+  week: boolean[]; // last 7 days, oldest first
+}
+
+export interface AnalysisResult {
+  schoolId: string;
+  day: string;
+  briefing: Briefing;
+  urbanForm: UrbanForm & { source: string };
+  exposure: {
+    typical: { verdict: string; day_ahead: string; dose_ug: number; max_outdoor_h: number };
+    sensitive: { verdict: string; max_outdoor_h: number };
+    feels_like: string;
+    visibility_km: number;
+    guidance: string[];
+  };
+  model: { v0: ProtocolLevel; v1: ProtocolLevel; v1_trained: boolean; agree: boolean };
+  eval: { n: number; seed: number; level_accuracy: number; verdict_stability: number };
+  generatedAt: string;
+  live?: boolean;
+}

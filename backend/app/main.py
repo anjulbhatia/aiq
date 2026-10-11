@@ -5,7 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from . import service
-from .schemas import (Briefing, DaylogWrite, PublishRequest, QueryRequest,
+from .schemas import (AttendanceResponse, Briefing, DaylogWrite,
+                      HistoryResponse, PublishRequest, QueryRequest,
                       RoleBriefingRequest, UneasyReport)
 
 app = FastAPI(title="AIQ backend", version="0.1.0")
@@ -107,4 +108,38 @@ def query(body: QueryRequest, authorization: str = Header(default="")) -> dict:
     try:
         return service.ask(me, body.question, body.schoolId)
     except (KeyError, PermissionError) as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.get("/api/analysis/{school_id}")
+def analysis(school_id: str, day: str | None = None,
+             authorization: str = Header(default="")) -> dict:
+    me = _principal(authorization)
+    try:
+        return service.run_analysis(me, school_id, day)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="unknown school")
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.get("/api/history/{school_id}", response_model=HistoryResponse)
+def history(school_id: str, days: int = 7, authorization: str = Header(default="")) -> dict:
+    me = _principal(authorization)
+    try:
+        return service.get_history(me, school_id, days)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="unknown school")
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.get("/api/attendance/{school_id}", response_model=AttendanceResponse)
+def attendance(school_id: str, authorization: str = Header(default="")) -> dict:
+    me = _principal(authorization)
+    try:
+        return service.get_attendance(me, school_id)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="unknown school")
+    except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))

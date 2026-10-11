@@ -1,4 +1,5 @@
-import type { Briefing, School, Student } from "./types";
+import type { AnalysisResult, AttendancePerson, Briefing, HistoryDay, School, Student } from "./types";
+import { getLevel } from "./protocol";
 
 export const SCHOOLS: School[] = [
   {
@@ -132,8 +133,134 @@ export const BRIEFINGS: Record<string, Briefing> = {
   },
 };
 
+export interface Teacher {
+  id: string;
+  name: string;
+  className: string;
+  schoolId: string;
+  status: "present" | "uneasy" | "leave";
+}
+
+export const TEACHERS: Teacher[] = [
+  { id: "t-01", name: "Meera Nair", className: "5-B", schoolId: "anand-vihar", status: "present" },
+  { id: "t-02", name: "Rohit Gupta", className: "3-A", schoolId: "anand-vihar", status: "uneasy" },
+  { id: "t-03", name: "Sara Thomas", className: "4-C", schoolId: "anand-vihar", status: "present" },
+  { id: "t-04", name: "Amit Joshi", className: "6-A", schoolId: "rk-puram", status: "present" },
+  { id: "t-05", name: "Neha Khan", className: "2-C", schoolId: "lodhi-road", status: "leave" },
+];
+
 export const DEMO_ACCOUNTS = [
   { role: "principal", email: "principal@vidyamandir.edu", schoolId: "anand-vihar" },
   { role: "teacher", email: "teacher@vidyamandir.edu", schoolId: "anand-vihar" },
   { role: "parent", email: "parent@example.com", schoolId: "anand-vihar" },
 ] as const;
+
+// --- Demo 7-day history + attendance (backend /api/history + /api/attendance
+// serve the real store when live; these seed the same shapes offline). ---
+
+function hashStr(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function mulberry32(seed: number) {
+  let a = seed;
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function historyFor(briefing: Briefing): HistoryDay[] {
+  const rng = mulberry32(hashStr(briefing.schoolId));
+  const days: HistoryDay[] = [];
+  for (let back = 6; back >= 0; back--) {
+    const d = new Date();
+    d.setDate(d.getDate() - back);
+    const drift = Math.round((rng() - 0.5) * 56 + Math.sin(back / 1.6) * 22);
+    const aqi = Math.max(30, briefing.aqi + (back === 0 ? 0 : drift));
+    const pm25 = Math.round(aqi * 0.62);
+    const pm10 = Math.round(aqi * 0.9);
+    days.push({
+      date: d.toISOString().slice(0, 10),
+      aqi,
+      pm25,
+      pm10,
+      level: getLevel(aqi),
+      doseUg: Math.round(pm25 * 0.9 * 6 * 10) / 10,
+    });
+  }
+  return days;
+}
+
+function weekFor(id: string): boolean[] {
+  const h = hashStr(id);
+  return Array.from({ length: 7 }, (_, i) => ((h >> (3 * i)) % 7 + 7) % 7 !== 0);
+}
+
+export interface AttendanceRoster {
+  dates: string[];
+  teachers: AttendancePerson[];
+  students: AttendancePerson[];
+}
+
+export function analysisFor(briefing: Briefing): AnalysisResult {
+  const doseUg = Math.round(briefing.pm25 * 0.9 * 2 * 10) / 10;
+  const verdict =
+    briefing.level === "Good" || briefing.level === "Moderate" ? "outdoor-okay"
+    : briefing.level === "Poor" ? "smooth"
+    : "indoor-only";
+  const levels = ["Good", "Moderate", "Poor", "VeryPoor", "Severe"] as const;
+  const rough =
+    levels.indexOf(briefing.forecastTomorrow.level) > levels.indexOf(briefing.level);
+  return {
+    schoolId: briefing.schoolId,
+    day: new Date().toISOString().slice(0, 10),
+    briefing,
+    urbanForm: {
+      canopyDensity: briefing.canopyDensity,
+      builtUpRatio: briefing.builtUpRatio,
+      smogTrapIndex: briefing.smogTrapIndex,
+      source: "curated",
+    },
+    exposure: {
+      typical: { verdict, day_ahead: rough ? "rough-day-ahead" : "steady", dose_ug: doseUg, max_outdoor_h: 2 },
+      sensitive: { verdict: verdict === "outdoor-okay" ? "smooth" : "indoor-only", max_outdoor_h: 1 },
+      feels_like: `${briefing.aqi} AQI, ${briefing.windKph} kph ${briefing.windDir} wind.`,
+      visibility_km: 3,
+      guidance: briefing.reasons.slice(0, 3),
+    },
+    model: { v0: briefing.level, v1: briefing.level, v1_trained: false, agree: true },
+    eval: { n: 0, seed: 7, level_accuracy: 0.946, verdict_stability: 0.987 },
+    generatedAt: new Date().toISOString(),
+    live: false,
+  };
+}export function attendanceFor(schoolId: string): AttendanceRoster {
+  const dates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toISOString().slice(0, 10);
+  });
+  return {
+    dates,
+    teachers: TEACHERS.filter((t) => t.schoolId === schoolId).map((t) => ({
+      id: t.id,
+      name: t.name,
+      className: t.className,
+      week: weekFor(`te:${t.id}`),
+    })),
+    students: STUDENTS.filter((s) => s.schoolId === schoolId).map((s) => ({
+      id: s.id,
+      name: s.name,
+      className: s.className,
+      week: weekFor(`st:${s.id}`),
+    })),
+  };
+}

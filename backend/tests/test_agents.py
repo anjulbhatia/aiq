@@ -99,9 +99,10 @@ class Daylog(unittest.TestCase):
 
 class Query(unittest.TestCase):
     def test_fallback_answers_from_scope(self):
+        from app.pipeline import build_briefing
         pa = P("parent", children=["st-01"])
         a = service.ask(pa, "what is the aqi today", "anand-vihar")["answer"]
-        self.assertIn("342", a)
+        self.assertIn(str(build_briefing("anand-vihar")["aqi"]), a)
         self.assertEqual(service.ask(pa, "should we worry", "anand-vihar")["scoped_as"], "parent")
         with self.assertRaises(PermissionError):
             service.ask({"id": "x", "role": "ghost"}, "hi", "anand-vihar")
