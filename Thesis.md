@@ -137,8 +137,19 @@ set in the map component.
 `python -m app.eval` (seed 7, N=2000, ±10% sensor noise): **level accuracy
 0.946, verdict stability 0.987** — inside the 90–95% clear-rate band. The
 confusion matrix has mass only on the diagonal and adjacent cells; no sample
-ever jumps two levels (asserted in `tests/test_eval.py`). All 22 backend tests
-pass offline (`python -m unittest discover -s tests`).
+ever jumps two levels (asserted in `tests/test_eval.py`).
+
+v1 (`app/model_v1.py`, weights in `app/model_v1_weights.json`): because sensor
+noise scales with concentration, one global weight cannot beat the rule, so v1
+fits one shrinkage weight per AQI band against yesterday's finalized AQI —
+`aqi_hat = α[band]·aqi + (1−α[band])·aqi_prev`, CPCB thresholds on `aqi_hat`.
+Fitted alphas [0.94, 1.0, 0.96, 0.98, 0.7]: full weight to fresh readings where
+they are precise, heavy anchoring where noise dominates. Holdout, two seeds:
+**rule 0.9410/0.9345 vs v1 0.9440/0.9385**. Small, consistent, and in the right
+direction — persistence denoises boundary flips. Served behind `AIQ_MODEL_V1=1`
+(`protocol.predict_level`, silent v0 fallback); enforced by
+`tests/test_model_v1.py`. All 25 backend tests pass offline
+(`python -m unittest discover -s tests`).
 
 What would falsify this: accuracy < 0.90 on a held-out Delhi winter with live
 xkdr PM; vision-vs-LULC agreement < 0.80; any two-level confusion jump; any

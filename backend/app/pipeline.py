@@ -64,7 +64,9 @@ def build_briefing(school_id: str, day: str | None = None) -> dict:
     today = regions.get(day) or regions[max(regions)]
     entry = today[school_id]
     urban = lulc.for_school(school)
-    level = protocol.predict_level({**entry, **urban})
+    prev_day = (date.fromisoformat(day) - timedelta(days=1)).isoformat()
+    prev_aqi = regions.get(prev_day, {}).get(school_id, {}).get("aqi", entry["aqi"])
+    level = protocol.predict_level({**entry, **urban, "aqi_prev": prev_aqi})
     tomorrow_key = min((d for d in regions if d > day), default=None)
     tmr = (regions.get(tomorrow_key, {}).get(school_id) if tomorrow_key
            else seed_tomorrow(entry))

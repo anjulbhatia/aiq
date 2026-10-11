@@ -28,7 +28,16 @@ def get_level(aqi: int) -> str:
 
 def predict_level(features: dict) -> str:
     """v1 ML hook. features: aqi, pm25, pm10, tempC, windKph, precipProb,
-    humidity, canopyDensity, builtUpRatio, smogTrapIndex. Today: rule model."""
+    humidity, canopyDensity, builtUpRatio, smogTrapIndex (+ aqi_prev when
+    known). Default v0 rule; AIQ_MODEL_V1=1 routes to the fitted shrinkage
+    model, falling back to v0 if weights are missing."""
+    if features.get("aqi_prev") is not None:
+        try:
+            from . import model_v1 as _v1
+            if _v1.active():
+                return _v1.predict_level_v1(features, float(features["aqi_prev"]))
+        except RuntimeError:
+            pass
     return get_level(int(features["aqi"]))
 
 
