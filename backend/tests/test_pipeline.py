@@ -18,9 +18,14 @@ def P(role, **kw):
 class Seeds(unittest.TestCase):
     def test_ids_match_frontend(self):
         schools = load_schools()
-        self.assertEqual(sorted(schools), ["anand-vihar", "lodhi-road", "rk-puram"])
+        # Original three match frontend mocks; Delhi AOIs extend the set.
+        for sid in ("anand-vihar", "lodhi-road", "rk-puram"):
+            self.assertIn(sid, schools)
+        for sid in ("st-angels-rohini", "vspk-rohini", "du-campus"):
+            self.assertIn(sid, schools)
         ids = [st["id"] for s in schools.values() for st in s["students"]]
-        self.assertEqual(sorted(ids), [f"st-0{i}" for i in range(1, 7)])
+        for i in range(1, 7):
+            self.assertIn(f"st-0{i}", ids)
         regions = load_regions()
         self.assertEqual(set(regions["2026-10-11"]), set(schools))
 

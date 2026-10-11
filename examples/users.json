@@ -54,7 +54,9 @@
       "schoolId": "lodhi-road"
     },
     {
-      "children": ["st-01"],
+      "children": [
+        "st-01"
+      ],
       "email": "parent@example.com",
       "id": "pa-01",
       "name": "Rohit Sharma",
@@ -62,7 +64,9 @@
       "schoolId": "anand-vihar"
     },
     {
-      "children": ["st-02"],
+      "children": [
+        "st-02"
+      ],
       "email": "pooja@example.com",
       "id": "pa-02",
       "name": "Pooja Verma",
@@ -70,7 +74,9 @@
       "schoolId": "anand-vihar"
     },
     {
-      "children": ["st-03"],
+      "children": [
+        "st-03"
+      ],
       "email": "harpreet@example.com",
       "id": "pa-03",
       "name": "Harpreet Singh",
@@ -78,7 +84,9 @@
       "schoolId": "anand-vihar"
     },
     {
-      "children": ["st-04"],
+      "children": [
+        "st-04"
+      ],
       "email": "lakshmi@example.com",
       "id": "pa-04",
       "name": "Lakshmi Iyer",
@@ -86,7 +94,9 @@
       "schoolId": "rk-puram"
     },
     {
-      "children": ["st-05"],
+      "children": [
+        "st-05"
+      ],
       "email": "suresh@example.com",
       "id": "pa-05",
       "name": "Suresh Rao",
@@ -94,12 +104,119 @@
       "schoolId": "rk-puram"
     },
     {
-      "children": ["st-06"],
+      "children": [
+        "st-06"
+      ],
       "email": "ritu@example.com",
       "id": "pa-06",
       "name": "Ritu Kapoor",
       "role": "parent",
       "schoolId": "lodhi-road"
+    },
+    {
+      "id": "pr-04",
+      "name": "Anjali Mehta",
+      "email": "principal@stangels.edu",
+      "role": "principal",
+      "schoolId": "st-angels-rohini"
+    },
+    {
+      "id": "pr-05",
+      "name": "Vikram Sethi",
+      "email": "principal@vspk.edu",
+      "role": "principal",
+      "schoolId": "vspk-rohini"
+    },
+    {
+      "id": "pr-06",
+      "name": "Farida Khan",
+      "email": "principal@ducampus.edu",
+      "role": "principal",
+      "schoolId": "du-campus"
+    },
+    {
+      "id": "te-05",
+      "name": "Neha Bansal",
+      "email": "neha@stangels.edu",
+      "role": "teacher",
+      "schoolId": "st-angels-rohini",
+      "class": "4-A"
+    },
+    {
+      "id": "te-06",
+      "name": "Pooja Nair",
+      "email": "pooja@vspk.edu",
+      "role": "teacher",
+      "schoolId": "vspk-rohini",
+      "class": "6-B"
+    },
+    {
+      "id": "te-07",
+      "name": "Imran Qureshi",
+      "email": "imran@ducampus.edu",
+      "role": "teacher",
+      "schoolId": "du-campus",
+      "class": "7-A"
+    },
+    {
+      "id": "pa-07",
+      "name": "Sandeep Khanna",
+      "email": "sandeep@example.com",
+      "role": "parent",
+      "schoolId": "st-angels-rohini",
+      "children": [
+        "st-07"
+      ]
+    },
+    {
+      "id": "pa-08",
+      "name": "Ritu Jain",
+      "email": "rituj@example.com",
+      "role": "parent",
+      "schoolId": "st-angels-rohini",
+      "children": [
+        "st-08"
+      ]
+    },
+    {
+      "id": "pa-09",
+      "name": "Rajesh Malhotra",
+      "email": "rajesh@example.com",
+      "role": "parent",
+      "schoolId": "vspk-rohini",
+      "children": [
+        "st-09"
+      ]
+    },
+    {
+      "id": "pa-10",
+      "name": "Mita Bose",
+      "email": "mita@example.com",
+      "role": "parent",
+      "schoolId": "vspk-rohini",
+      "children": [
+        "st-10"
+      ]
+    },
+    {
+      "id": "pa-11",
+      "name": "Salim Ahmed",
+      "email": "salim@example.com",
+      "role": "parent",
+      "schoolId": "du-campus",
+      "children": [
+        "st-11"
+      ]
+    },
+    {
+      "id": "pa-12",
+      "name": "Divya Menon",
+      "email": "divya@example.com",
+      "role": "parent",
+      "schoolId": "du-campus",
+      "children": [
+        "st-12"
+      ]
     }
   ]
 }

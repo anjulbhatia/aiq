@@ -29,6 +29,36 @@
       "tempC": 30,
       "windDir": "W",
       "windKph": 11
+    },
+    "st-angels-rohini": {
+      "aqi": 384,
+      "pm25": 248.0,
+      "pm10": 342.0,
+      "tempC": 28.0,
+      "windKph": 6.0,
+      "windDir": "NW",
+      "precipProb": 5.0,
+      "humidity": 61.0
+    },
+    "vspk-rohini": {
+      "aqi": 362,
+      "pm25": 232.0,
+      "pm10": 328.0,
+      "tempC": 28.0,
+      "windKph": 6.0,
+      "windDir": "NW",
+      "precipProb": 5.0,
+      "humidity": 60.0
+    },
+    "du-campus": {
+      "aqi": 287,
+      "pm25": 178.0,
+      "pm10": 262.0,
+      "tempC": 29.0,
+      "windKph": 9.0,
+      "windDir": "W",
+      "precipProb": 8.0,
+      "humidity": 55.0
     }
   },
   "2026-10-12": {
@@ -61,6 +91,36 @@
       "tempC": 30,
       "windDir": "W",
       "windKph": 12
+    },
+    "st-angels-rohini": {
+      "aqi": 351,
+      "pm25": 226.0,
+      "pm10": 318.0,
+      "tempC": 28.0,
+      "windKph": 7.0,
+      "windDir": "NW",
+      "precipProb": 5.0,
+      "humidity": 59.0
+    },
+    "vspk-rohini": {
+      "aqi": 340,
+      "pm25": 218.0,
+      "pm10": 310.0,
+      "tempC": 28.0,
+      "windKph": 7.0,
+      "windDir": "NW",
+      "precipProb": 5.0,
+      "humidity": 58.0
+    },
+    "du-campus": {
+      "aqi": 268,
+      "pm25": 164.0,
+      "pm10": 244.0,
+      "tempC": 29.0,
+      "windKph": 10.0,
+      "windDir": "W",
+      "precipProb": 10.0,
+      "humidity": 53.0
     }
   }
 }

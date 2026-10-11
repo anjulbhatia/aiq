@@ -179,6 +179,180 @@
         "canopyDensity": 0.31,
         "smogTrapIndex": 0.45
       }
+    },
+    "st-angels-rohini": {
+      "id": "st-angels-rohini",
+      "name": "St Angels School",
+      "locality": "Rohini",
+      "city": "Delhi",
+      "lat": 28.729949,
+      "lng": 77.129201,
+      "urban_form": {
+        "canopyDensity": 0.18,
+        "builtUpRatio": 0.78,
+        "smogTrapIndex": 0.74
+      },
+      "principal": {
+        "id": "pr-04",
+        "name": "Anjali Mehta",
+        "email": "principal@stangels.edu"
+      },
+      "teachers": [
+        {
+          "id": "te-05",
+          "name": "Neha Bansal",
+          "email": "neha@stangels.edu",
+          "class": "4-A"
+        }
+      ],
+      "students": [
+        {
+          "id": "st-07",
+          "name": "Aarush Khanna",
+          "class": "4-A",
+          "status": "ok",
+          "parents": [
+            {
+              "id": "pa-07",
+              "name": "Sandeep Khanna",
+              "email": "sandeep@example.com"
+            }
+          ],
+          "conditions": [
+            "asthma"
+          ]
+        },
+        {
+          "id": "st-08",
+          "name": "Saanvi Jain",
+          "class": "4-A",
+          "status": "ok",
+          "parents": [
+            {
+              "id": "pa-08",
+              "name": "Ritu Jain",
+              "email": "rituj@example.com"
+            }
+          ],
+          "conditions": []
+        }
+      ]
+    },
+    "vspk-rohini": {
+      "id": "vspk-rohini",
+      "name": "VSPK International School",
+      "locality": "Rohini",
+      "city": "Delhi",
+      "lat": 28.718389,
+      "lng": 77.129538,
+      "urban_form": {
+        "canopyDensity": 0.15,
+        "builtUpRatio": 0.81,
+        "smogTrapIndex": 0.78
+      },
+      "principal": {
+        "id": "pr-05",
+        "name": "Vikram Sethi",
+        "email": "principal@vspk.edu"
+      },
+      "teachers": [
+        {
+          "id": "te-06",
+          "name": "Pooja Nair",
+          "email": "pooja@vspk.edu",
+          "class": "6-B"
+        }
+      ],
+      "students": [
+        {
+          "id": "st-09",
+          "name": "Arjun Malhotra",
+          "class": "6-B",
+          "status": "uneasy",
+          "parents": [
+            {
+              "id": "pa-09",
+              "name": "Rajesh Malhotra",
+              "email": "rajesh@example.com"
+            }
+          ],
+          "conditions": [
+            "dust allergy"
+          ]
+        },
+        {
+          "id": "st-10",
+          "name": "Ishita Bose",
+          "class": "6-B",
+          "status": "ok",
+          "parents": [
+            {
+              "id": "pa-10",
+              "name": "Mita Bose",
+              "email": "mita@example.com"
+            }
+          ],
+          "conditions": []
+        }
+      ]
+    },
+    "du-campus": {
+      "id": "du-campus",
+      "name": "University Campus School",
+      "locality": "North Campus",
+      "city": "Delhi",
+      "lat": 28.6871,
+      "lng": 77.2079,
+      "urban_form": {
+        "canopyDensity": 0.42,
+        "builtUpRatio": 0.48,
+        "smogTrapIndex": 0.35
+      },
+      "principal": {
+        "id": "pr-06",
+        "name": "Farida Khan",
+        "email": "principal@ducampus.edu"
+      },
+      "teachers": [
+        {
+          "id": "te-07",
+          "name": "Imran Qureshi",
+          "email": "imran@ducampus.edu",
+          "class": "7-A"
+        }
+      ],
+      "students": [
+        {
+          "id": "st-11",
+          "name": "Zoya Ahmed",
+          "class": "7-A",
+          "status": "ok",
+          "parents": [
+            {
+              "id": "pa-11",
+              "name": "Salim Ahmed",
+              "email": "salim@example.com"
+            }
+          ],
+          "conditions": [
+            "asthma"
+          ]
+        },
+        {
+          "id": "st-12",
+          "name": "Aditya Menon",
+          "class": "7-A",
+          "status": "ok",
+          "parents": [
+            {
+              "id": "pa-12",
+              "name": "Divya Menon",
+              "email": "divya@example.com"
+            }
+          ],
+          "conditions": []
+        }
+      ]
     }
   }
 }
