@@ -1,0 +1,105 @@
+{
+  "users": [
+    {
+      "email": "principal@vidyamandir.edu",
+      "id": "pr-01",
+      "name": "Meera Krishnan",
+      "role": "principal",
+      "schoolId": "anand-vihar"
+    },
+    {
+      "email": "principal@sarvodaya.edu",
+      "id": "pr-02",
+      "name": "Arun Nair",
+      "role": "principal",
+      "schoolId": "rk-puram"
+    },
+    {
+      "email": "principal@littlescholars.edu",
+      "id": "pr-03",
+      "name": "Nina D'Souza",
+      "role": "principal",
+      "schoolId": "lodhi-road"
+    },
+    {
+      "class": "5-B",
+      "email": "teacher@vidyamandir.edu",
+      "id": "te-01",
+      "name": "Rahul Gupta",
+      "role": "teacher",
+      "schoolId": "anand-vihar"
+    },
+    {
+      "class": "3-A",
+      "email": "sana@vidyamandir.edu",
+      "id": "te-02",
+      "name": "Sana Sheikh",
+      "role": "teacher",
+      "schoolId": "anand-vihar"
+    },
+    {
+      "class": "6-A",
+      "email": "kavita@sarvodaya.edu",
+      "id": "te-03",
+      "name": "Kavita Rao",
+      "role": "teacher",
+      "schoolId": "rk-puram"
+    },
+    {
+      "class": "2-C",
+      "email": "farhan@littlescholars.edu",
+      "id": "te-04",
+      "name": "Farhan Ali",
+      "role": "teacher",
+      "schoolId": "lodhi-road"
+    },
+    {
+      "children": ["st-01"],
+      "email": "parent@example.com",
+      "id": "pa-01",
+      "name": "Rohit Sharma",
+      "role": "parent",
+      "schoolId": "anand-vihar"
+    },
+    {
+      "children": ["st-02"],
+      "email": "pooja@example.com",
+      "id": "pa-02",
+      "name": "Pooja Verma",
+      "role": "parent",
+      "schoolId": "anand-vihar"
+    },
+    {
+      "children": ["st-03"],
+      "email": "harpreet@example.com",
+      "id": "pa-03",
+      "name": "Harpreet Singh",
+      "role": "parent",
+      "schoolId": "anand-vihar"
+    },
+    {
+      "children": ["st-04"],
+      "email": "lakshmi@example.com",
+      "id": "pa-04",
+      "name": "Lakshmi Iyer",
+      "role": "parent",
+      "schoolId": "rk-puram"
+    },
+    {
+      "children": ["st-05"],
+      "email": "suresh@example.com",
+      "id": "pa-05",
+      "name": "Suresh Rao",
+      "role": "parent",
+      "schoolId": "rk-puram"
+    },
+    {
+      "children": ["st-06"],
+      "email": "ritu@example.com",
+      "id": "pa-06",
+      "name": "Ritu Kapoor",
+      "role": "parent",
+      "schoolId": "lodhi-road"
+    }
+  ]
+}

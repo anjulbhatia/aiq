@@ -1,0 +1,66 @@
+{
+  "2026-10-11": {
+    "anand-vihar": {
+      "aqi": 342,
+      "humidity": 58,
+      "pm10": 305,
+      "pm25": 218,
+      "precipProb": 5,
+      "tempC": 29,
+      "windDir": "NW",
+      "windKph": 7
+    },
+    "lodhi-road": {
+      "aqi": 128,
+      "humidity": 49,
+      "pm10": 112,
+      "pm25": 68,
+      "precipProb": 15,
+      "tempC": 30,
+      "windDir": "SW",
+      "windKph": 14
+    },
+    "rk-puram": {
+      "aqi": 196,
+      "humidity": 52,
+      "pm10": 178,
+      "pm25": 112,
+      "precipProb": 10,
+      "tempC": 30,
+      "windDir": "W",
+      "windKph": 11
+    }
+  },
+  "2026-10-12": {
+    "anand-vihar": {
+      "aqi": 318,
+      "humidity": 56,
+      "pm10": 290,
+      "pm25": 200,
+      "precipProb": 5,
+      "tempC": 29,
+      "windDir": "NW",
+      "windKph": 8
+    },
+    "lodhi-road": {
+      "aqi": 115,
+      "humidity": 47,
+      "pm10": 100,
+      "pm25": 60,
+      "precipProb": 15,
+      "tempC": 30,
+      "windDir": "SW",
+      "windKph": 15
+    },
+    "rk-puram": {
+      "aqi": 172,
+      "humidity": 50,
+      "pm10": 160,
+      "pm25": 98,
+      "precipProb": 10,
+      "tempC": 30,
+      "windDir": "W",
+      "windKph": 12
+    }
+  }
+}

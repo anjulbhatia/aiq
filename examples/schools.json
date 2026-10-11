@@ -1,0 +1,184 @@
+{
+  "schools": {
+    "anand-vihar": {
+      "city": "Delhi",
+      "id": "anand-vihar",
+      "lat": 28.65,
+      "lng": 77.31,
+      "locality": "Anand Vihar",
+      "name": "Vidya Mandir Sr. Sec.",
+      "principal": {
+        "email": "principal@vidyamandir.edu",
+        "id": "pr-01",
+        "name": "Meera Krishnan"
+      },
+      "students": [
+        {
+          "class": "5-B",
+          "conditions": [
+            "asthma"
+          ],
+          "id": "st-01",
+          "name": "Aarav Sharma",
+          "parents": [
+            {
+              "email": "parent@example.com",
+              "id": "pa-01",
+              "name": "Rohit Sharma"
+            }
+          ],
+          "status": "ok"
+        },
+        {
+          "class": "5-B",
+          "conditions": [],
+          "id": "st-02",
+          "name": "Diya Verma",
+          "parents": [
+            {
+              "email": "pooja@example.com",
+              "id": "pa-02",
+              "name": "Pooja Verma"
+            }
+          ],
+          "status": "ok"
+        },
+        {
+          "class": "3-A",
+          "conditions": [
+            "breathing issues"
+          ],
+          "id": "st-03",
+          "name": "Kabir Singh",
+          "parents": [
+            {
+              "email": "harpreet@example.com",
+              "id": "pa-03",
+              "name": "Harpreet Singh"
+            }
+          ],
+          "status": "uneasy"
+        }
+      ],
+      "teachers": [
+        {
+          "class": "5-B",
+          "email": "teacher@vidyamandir.edu",
+          "id": "te-01",
+          "name": "Rahul Gupta"
+        },
+        {
+          "class": "3-A",
+          "email": "sana@vidyamandir.edu",
+          "id": "te-02",
+          "name": "Sana Sheikh"
+        }
+      ],
+      "urban_form": {
+        "builtUpRatio": 0.86,
+        "canopyDensity": 0.12,
+        "smogTrapIndex": 0.82
+      }
+    },
+    "lodhi-road": {
+      "city": "Delhi",
+      "id": "lodhi-road",
+      "lat": 28.59,
+      "lng": 77.22,
+      "locality": "Lodhi Road",
+      "name": "Little Scholars Academy",
+      "principal": {
+        "email": "principal@littlescholars.edu",
+        "id": "pr-03",
+        "name": "Nina D'Souza"
+      },
+      "students": [
+        {
+          "class": "2-C",
+          "conditions": [],
+          "id": "st-06",
+          "name": "Myra Kapoor",
+          "parents": [
+            {
+              "email": "ritu@example.com",
+              "id": "pa-06",
+              "name": "Ritu Kapoor"
+            }
+          ],
+          "status": "ok"
+        }
+      ],
+      "teachers": [
+        {
+          "class": "2-C",
+          "email": "farhan@littlescholars.edu",
+          "id": "te-04",
+          "name": "Farhan Ali"
+        }
+      ],
+      "urban_form": {
+        "builtUpRatio": 0.41,
+        "canopyDensity": 0.48,
+        "smogTrapIndex": 0.28
+      }
+    },
+    "rk-puram": {
+      "city": "Delhi",
+      "id": "rk-puram",
+      "lat": 28.56,
+      "lng": 77.17,
+      "locality": "R.K. Puram",
+      "name": "Sarvodaya Vidyalaya",
+      "principal": {
+        "email": "principal@sarvodaya.edu",
+        "id": "pr-02",
+        "name": "Arun Nair"
+      },
+      "students": [
+        {
+          "class": "6-A",
+          "conditions": [
+            "asthma"
+          ],
+          "id": "st-04",
+          "name": "Ananya Iyer",
+          "parents": [
+            {
+              "email": "lakshmi@example.com",
+              "id": "pa-04",
+              "name": "Lakshmi Iyer"
+            }
+          ],
+          "status": "ok"
+        },
+        {
+          "class": "6-A",
+          "conditions": [],
+          "id": "st-05",
+          "name": "Vivaan Rao",
+          "parents": [
+            {
+              "email": "suresh@example.com",
+              "id": "pa-05",
+              "name": "Suresh Rao"
+            }
+          ],
+          "status": "ok"
+        }
+      ],
+      "teachers": [
+        {
+          "class": "6-A",
+          "email": "kavita@sarvodaya.edu",
+          "id": "te-03",
+          "name": "Kavita Rao"
+        }
+      ],
+      "urban_form": {
+        "builtUpRatio": 0.62,
+        "canopyDensity": 0.31,
+        "smogTrapIndex": 0.45
+      }
+    }
+  }
+}
