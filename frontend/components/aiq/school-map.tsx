@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import type * as MapLibreGL from "maplibre-gl";
 import { House, MapPin, Stack, TreeEvergreen } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,7 +9,8 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -24,6 +27,36 @@ import {
 import type { ProtocolLevel } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import type { AppRole } from "./app-topbar";
+
+export type BasemapId = "bright" | "liberty" | "satellite";
+
+const BRIGHT = "https://tiles.openfreemap.org/styles/bright";
+const LIBERTY = "https://tiles.openfreemap.org/styles/liberty";
+
+// Satellite raster. Point NEXT_PUBLIC_SATELLITE_STYLE at the AWS tile
+// backend when ready (full GL style JSON URL); falls back to Esri imagery.
+const satelliteTiles =
+  process.env.NEXT_PUBLIC_SATELLITE_TILES ??
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+
+const BASEMAPS: Record<BasemapId, string | MapLibreGL.StyleSpecification> = {
+  bright: BRIGHT,
+  liberty: LIBERTY,
+  satellite:
+    process.env.NEXT_PUBLIC_SATELLITE_STYLE ??
+    ({
+      version: 8,
+      sources: {
+        satellite: {
+          type: "raster",
+          tiles: [satelliteTiles],
+          tileSize: 256,
+          attribution: "Esri World Imagery",
+        },
+      },
+      layers: [{ id: "satellite", type: "raster", source: "satellite" }],
+    } as MapLibreGL.StyleSpecification),
+};
 
 export interface MapLayers {
   sensors: boolean;
@@ -119,6 +152,7 @@ export function SchoolMapView({
   onLayersChange,
   onOpenStudents,
   zoom = 12.5,
+  minMapHeight = "min-h-[420px]",
   className,
 }: {
   role: AppRole;
@@ -129,12 +163,16 @@ export function SchoolMapView({
   level: ProtocolLevel;
   layers: MapLayers;
   onLayersChange: (l: MapLayers) => void;
-  onOpenStudents: () => void;
+  onOpenStudents?: () => void;
   zoom?: number;
+  minMapHeight?: string;
   className?: string;
 }) {
   const center = resolveMapCenter(role, school);
   const hex = LEVEL_HEX[level];
+  const [basemap, setBasemap] = useState<BasemapId>("bright");
+  const [tilt, setTilt] = useState(false);
+  const style = BASEMAPS[basemap];
 
   return (
     <div
@@ -144,10 +182,12 @@ export function SchoolMapView({
       )}
     >
       <MapRoot
-        key={`${center.lng}-${center.lat}-${zoom}`}
+        key={`${center.lng}-${center.lat}-${zoom}-${basemap}-${tilt}`}
         center={[center.lng, center.lat]}
         zoom={zoom}
-        className="h-full min-h-[420px] w-full"
+        pitch={tilt ? 60 : 0}
+        styles={{ light: style, dark: style }}
+        className={cn("h-full w-full", minMapHeight)}
       >
         <MapGeoJSON
           data={circleGeoJSON(school.lng, school.lat, 2000)}
@@ -183,14 +223,16 @@ export function SchoolMapView({
               <p className="text-xs text-muted-foreground tabular-nums">
                 {aqi} AQI · {headline}
               </p>
-              <Button
-                size="sm"
-                variant="secondary"
-                className="w-full rounded-full"
-                onClick={onOpenStudents}
-              >
-                Open students
-              </Button>
+              {onOpenStudents && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="w-full rounded-full"
+                  onClick={onOpenStudents}
+                >
+                  Open students
+                </Button>
+              )}
             </div>
           </MarkerPopup>
         </MapMarker>
@@ -210,16 +252,13 @@ export function SchoolMapView({
         <MapControls position="bottom-right" showZoom showFullscreen />
       </MapRoot>
 
-      <div className="absolute top-4 left-4 flex gap-1.5">
-        <Badge variant="secondary" className="rounded-full bg-background/90">
-          School + 2km radius
-        </Badge>
-        {layers.canopy && (
+      {layers.canopy && (
+        <div className="absolute top-4 left-4">
           <Badge variant="secondary" className="rounded-full bg-background/90">
             <TreeEvergreen className="size-3" /> Canopy
           </Badge>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="absolute top-4 right-4">
         <DropdownMenu>
@@ -235,8 +274,27 @@ export function SchoolMapView({
             }
           />
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Map layers</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={basemap}
+              onValueChange={(v) => setBasemap(v as BasemapId)}
+            >
+              <DropdownMenuRadioItem value="bright">
+                Bright
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="liberty">
+                3D streets
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="satellite">
+                Satellite
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
             <DropdownMenuSeparator />
+            <DropdownMenuCheckboxItem
+              checked={tilt}
+              onCheckedChange={(v) => setTilt(v === true)}
+            >
+              3D tilt
+            </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem
               checked={layers.sensors}
               onCheckedChange={(v) =>
@@ -287,6 +345,7 @@ export function SchoolMapPreview({
         center={[center.lng, center.lat]}
         zoom={12}
         interactive={false}
+        styles={{ light: BRIGHT, dark: BRIGHT }}
         className="pointer-events-none h-full w-full"
       >
         <MapGeoJSON

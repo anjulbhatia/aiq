@@ -44,6 +44,7 @@ export function AppTopbar({
   level,
   onOpenBriefing,
   onOpenStudents,
+  onOpenProfile,
 }: {
   role: AppRole;
   onRoleChange: (r: AppRole) => void;
@@ -51,6 +52,7 @@ export function AppTopbar({
   level: ProtocolLevel;
   onOpenBriefing: () => void;
   onOpenStudents: () => void;
+  onOpenProfile?: () => void;
 }) {
   return (
     <header className="pointer-events-auto flex h-14 items-center gap-3 rounded-4xl bg-background/90 px-4 shadow-md ring-1 ring-foreground/5 backdrop-blur">
@@ -126,7 +128,9 @@ export function AppTopbar({
             <DropdownMenuItem onClick={onOpenStudents}>
               Open school / students
             </DropdownMenuItem>
-            <DropdownMenuItem>Edit profile</DropdownMenuItem>
+            <DropdownMenuItem onClick={onOpenProfile}>
+              Edit profile
+            </DropdownMenuItem>
             <DropdownMenuItem>Add conditions</DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>

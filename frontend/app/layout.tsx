@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Manrope, Raleway } from "next/font/google";
 import "./globals.css";
+import { AppStateProvider } from "@/components/aiq/app-state";
 import { cn } from "@/lib/utils";
 
 const ralewayHeading = Raleway({subsets:['latin'],variable:'--font-heading'});
@@ -28,7 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", manrope.variable, ralewayHeading.variable)}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <AppStateProvider>{children}</AppStateProvider>
+      </body>
     </html>
   );
 }

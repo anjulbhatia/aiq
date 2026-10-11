@@ -76,3 +76,31 @@ class DaylogWrite(BaseModel):
 class QueryRequest(BaseModel):
     question: str
     schoolId: str | None = None
+
+
+class HistoryDay(BaseModel):
+    date: str
+    aqi: int
+    pm25: float
+    pm10: float
+    level: ProtocolLevel
+    doseUg: float
+
+
+class HistoryResponse(BaseModel):
+    schoolId: str
+    days: list[HistoryDay]
+
+
+class AttendancePerson(BaseModel):
+    id: str
+    name: str
+    className: str
+    week: list[bool]  # last 7 school days, oldest first
+
+
+class AttendanceResponse(BaseModel):
+    schoolId: str
+    dates: list[str]
+    teachers: list[AttendancePerson]
+    students: list[AttendancePerson]

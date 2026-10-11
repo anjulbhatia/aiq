@@ -4,6 +4,7 @@ import { SunHorizon, Thermometer, Wind } from "@phosphor-icons/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { LEVEL_META } from "@/lib/protocol";
 import type { Briefing } from "@/lib/types";
+import { LEVEL_HEX } from "./school-map";
 
 const HEADLINE: Record<string, string> = {
   Good: "Safe Outside",
@@ -21,8 +22,14 @@ export function StatusCard({
   locality: string;
 }) {
   const meta = LEVEL_META[briefing.level];
+  const hex = LEVEL_HEX[briefing.level];
   return (
-    <Card className="gap-4 p-6 sm:p-8">
+    <Card
+      className="gap-4 p-6 sm:p-8"
+      style={{
+        backgroundImage: `linear-gradient(180deg, ${hex}26, transparent 45%)`,
+      }}
+    >
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span className="inline-flex items-center gap-1.5">
           <SunHorizon className="size-4" /> Sun, Jul 24 · {locality}
