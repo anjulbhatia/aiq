@@ -36,6 +36,21 @@ def handler(event: dict, context=None) -> dict:  # noqa: ARG001
         if method == "POST" and path == "/api/publish":
             return _resp(200, service.publish_protocol(
                 me, body["schoolId"], body["level"], body.get("actions", [])))
+        if method == "GET" and path == "/api/auth/context":
+            return _resp(200, service.auth_context(me))
+        if method == "POST" and path == "/api/briefing/role":
+            return _resp(200, service.run_briefing(me, body["schoolId"], body.get("day")))
+        if method == "POST" and path == "/api/daylog":
+            return _resp(200, service.log_day(
+                me, body["studentId"], body.get("entries", []),
+                body.get("unease", False), body.get("note", ""), body.get("date")))
+        if method == "GET" and path.startswith("/api/daylog/"):
+            sid = path.rsplit("/", 1)[-1]
+            out = service.read_daylog(me, sid)
+            out["summary"] = service.summarize_day(me, sid)["summary"]
+            return _resp(200, out)
+        if method == "POST" and path == "/api/query":
+            return _resp(200, service.ask(me, body["question"], body.get("schoolId")))
         return _resp(404, {"detail": "not found"})
     except KeyError as e:
         return _resp(404 if "unknown" in str(e) else 401, {"detail": str(e)})

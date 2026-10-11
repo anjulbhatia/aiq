@@ -5,7 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from . import service
-from .schemas import Briefing, PublishRequest, UneasyReport
+from .schemas import (Briefing, DaylogWrite, PublishRequest, QueryRequest,
+                      RoleBriefingRequest, UneasyReport)
 
 app = FastAPI(title="AIQ backend", version="0.1.0")
 app.add_middleware(
@@ -62,4 +63,48 @@ def publish(body: PublishRequest, authorization: str = Header(default="")) -> di
         return service.publish_protocol(me, body.schoolId, body.level,
                                         [a.model_dump() for a in body.actions])
     except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.get("/api/auth/context")
+def auth_context(authorization: str = Header(default="")) -> dict:
+    return service.auth_context(_principal(authorization))
+
+
+@app.post("/api/briefing/role")
+def role_briefing(body: RoleBriefingRequest, authorization: str = Header(default="")) -> dict:
+    me = _principal(authorization)
+    try:
+        return service.run_briefing(me, body.schoolId, body.day)
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.post("/api/daylog", response_model=Ok)
+def write_daylog(body: DaylogWrite, authorization: str = Header(default="")) -> dict:
+    me = _principal(authorization)
+    try:
+        return service.log_day(me, body.studentId, body.entries,
+                               body.unease, body.note, body.date)
+    except (KeyError, PermissionError) as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.get("/api/daylog/{student_id}")
+def get_daylog(student_id: str, authorization: str = Header(default="")) -> dict:
+    me = _principal(authorization)
+    try:
+        out = service.read_daylog(me, student_id)
+        out["summary"] = service.summarize_day(me, student_id)["summary"]
+        return out
+    except (KeyError, PermissionError) as e:
+        raise HTTPException(status_code=403, detail=str(e))
+
+
+@app.post("/api/query")
+def query(body: QueryRequest, authorization: str = Header(default="")) -> dict:
+    me = _principal(authorization)
+    try:
+        return service.ask(me, body.question, body.schoolId)
+    except (KeyError, PermissionError) as e:
         raise HTTPException(status_code=403, detail=str(e))

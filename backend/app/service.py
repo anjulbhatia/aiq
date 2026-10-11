@@ -6,6 +6,7 @@ Both transports are thin wrappers here — plain dicts in/out, stdlib only.
 from datetime import datetime, timezone
 
 from .authz import Decision, authorize
+from .authz.scopes import scopes_for
 from .data import load_schools, load_users
 from .pipeline import build_briefing
 
@@ -41,6 +42,38 @@ def publish_protocol(principal: dict, school_id: str, level: str, actions: list)
     # Mock parent push: real fan-out (SNS) lands here post-hackathon.
     print(f"[publish] {school_id} {level} -> parents (mock push)")
     return {"ok": True, "publishedAt": entry["publishedAt"]}
+
+
+def auth_context(principal: dict) -> dict:
+    """UI boot payload: identity + Cedar-derived surfaces and actions."""
+    return {"user": {k: principal.get(k) for k in ("id", "role", "schoolId", "class", "children")},
+            "scopes": scopes_for(principal.get("role", ""))}
+
+
+def run_briefing(principal: dict, school_id: str, day: str | None = None) -> dict:
+    from .agents import roles
+    return roles.run_morning_briefing(principal, school_id, day)
+
+
+def log_day(principal: dict, student_id: str, entries: list,
+            unease: bool = False, note: str = "", date: str | None = None) -> dict:
+    from .agents import daylog
+    return daylog.log_child_day(principal, student_id, entries, unease, note, date)
+
+
+def read_daylog(principal: dict, student_id: str) -> dict:
+    from .agents import daylog
+    return {"studentId": student_id, "entries": daylog.read_day_log(principal, student_id)}
+
+
+def summarize_day(principal: dict, student_id: str) -> dict:
+    from .agents import daylog
+    return daylog.summarize_day(principal, student_id)
+
+
+def ask(principal: dict, question: str, school_id: str | None = None) -> dict:
+    from .agents import query
+    return query.answer(principal, question, school_id)
 
 
 def _find_student(student_id: str) -> dict:

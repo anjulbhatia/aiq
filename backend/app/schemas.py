@@ -58,3 +58,21 @@ class PublishRequest(BaseModel):
     schoolId: str
     level: ProtocolLevel
     actions: list[ProtocolAction] = []
+
+
+class RoleBriefingRequest(BaseModel):
+    schoolId: str
+    day: str | None = None
+
+
+class DaylogWrite(BaseModel):
+    studentId: str
+    entries: list[str] = []
+    unease: bool = False
+    note: str = ""
+    date: str | None = None
+
+
+class QueryRequest(BaseModel):
+    question: str
+    schoolId: str | None = None

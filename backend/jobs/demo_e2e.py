@@ -81,6 +81,29 @@ def main() -> int:
 
         s, _ = call(base, "GET", "/api/briefing/nope", PRINCIPAL)
         checks.append(("unknown school 404", s == 404))
+
+        s, c = call(base, "GET", "/api/auth/context", TEACHER)
+        checks.append(("scopes omit view-briefing", s == 200
+                       and "view-briefing" not in c["scopes"]["actions"]))
+        s, rb = call(base, "POST", "/api/briefing/role", PRINCIPAL,
+                     {"schoolId": "anand-vihar"})
+        checks.append(("principal role briefing", s == 200 and "anand-vihar" in rb["note"]))
+        s, rb = call(base, "POST", "/api/briefing/role", TEACHER, {"schoolId": "anand-vihar"})
+        checks.append(("teacher role briefing class-scoped", s == 200 and "5-B" in rb["note"]))
+        s, _ = call(base, "POST", "/api/briefing/role", PARENT, {"schoolId": "rk-puram"})
+        checks.append(("parent cross-school denied", s == 403))
+
+        s, _ = call(base, "POST", "/api/daylog", TEACHER,
+                    {"studentId": "st-01", "entries": ["demo day"], "unease": False})
+        checks.append(("teacher daylog write", s == 200))
+        s, dl = call(base, "GET", "/api/daylog/st-01", PARENT)
+        checks.append(("parent daylog read+summary", s == 200 and "st-01" in dl["summary"]))
+        s, _ = call(base, "GET", "/api/daylog/st-02", PARENT)
+        checks.append(("parent other-child log denied", s == 403))
+
+        s, q = call(base, "POST", "/api/query", PARENT,
+                    {"question": "what is the aqi today", "schoolId": "anand-vihar"})
+        checks.append(("parent query scoped answer", s == 200 and "AQI" in q["answer"]))
     finally:
         srv.terminate()
     bad = [name for name, ok in checks if not ok]

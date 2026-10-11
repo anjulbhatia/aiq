@@ -1,0 +1,38 @@
+{
+  "st-03": [
+    {
+      "by": "te-02",
+      "date": "2026-10-10",
+      "entries": ["coughing after outdoor break", "rested in sick room 20 min"],
+      "note": "carries reliever; inform parents if repeats",
+      "unease": true
+    }
+  ],
+  "st-07": [
+    {
+      "by": "te-05",
+      "date": "2026-10-10",
+      "entries": ["morning assembly indoors", "normal appetite at lunch"],
+      "note": "",
+      "unease": false
+    }
+  ],
+  "st-09": [
+    {
+      "by": "te-06",
+      "date": "2026-10-10",
+      "entries": ["wheezy during PE warmup", "moved indoors, settled quickly"],
+      "note": "dust allergy — check ground conditions before outdoor PE",
+      "unease": true
+    }
+  ],
+  "st-11": [
+    {
+      "by": "te-07",
+      "date": "2026-10-10",
+      "entries": ["library period, no exertion", "evening tuition note sent"],
+      "note": "",
+      "unease": false
+    }
+  ]
+}

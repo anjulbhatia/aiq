@@ -9,7 +9,40 @@ Deploy: same module runs on Lambda (see lambda_handler.py) per the Strands
 Lambda deploy guide; agent constructed per-invocation, no shared state.
 """
 
+from pathlib import Path
+
 from ..pipeline import build_briefing
+
+AGENT_POLICIES = str(Path(__file__).resolve().parent.parent / "authz" / "agent.cedar")
+
+
+def run_with_tools(system: str, prompt: str, extra_tools: list, state: dict) -> str:
+    """One Strands loop with the Cedar tool-gate. Raises without creds (caller falls back).
+
+    Identity + role flow: principal_resolver turns invocation_state into the
+    Cedar principal; context_enricher forwards role/school/class/children so
+    agent.cedar permits exactly the caller's scope. Fail-closed throughout.
+    """
+    from strands import Agent
+    from strands.vended_interventions.cedar import CedarAuthorization
+
+    defs = [{"name": getattr(t, "__name__", "tool"),
+             "inputSchema": {"type": "object"}} for t in extra_tools]
+    cedar = CedarAuthorization(
+        policies=AGENT_POLICIES,
+        tools=defs,
+        principal_resolver=lambda s: ({"type": "User", "id": str(s["user_id"])}
+                                      if s.get("user_id") else None),
+        context_enricher=lambda c: {
+            "role": c["invocation_state"].get("role", "none"),
+            "school_id": c["invocation_state"].get("school_id", ""),
+            "class": c["invocation_state"].get("class") or "",
+            "children": c["invocation_state"].get("children") or [],
+            "environment": c["invocation_state"].get("environment", "unknown"),
+        },
+    )
+    agent = Agent(system_prompt=system, tools=extra_tools, interventions=[cedar])
+    return str(agent(prompt, invocation_state=state))
 
 SYSTEM = (
     "You write the principal's 3-sentence morning air-quality note. "

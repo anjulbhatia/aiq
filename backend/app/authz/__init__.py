@@ -23,7 +23,7 @@ class Decision(Enum):
 
 
 def authorize(principal: dict, action: str, resource: str, context: dict | None = None) -> Decision:
-    """principal {id, role, schoolId, children[], class}; resource school:<id> | student:<id>."""
+    """principal {id, role, schoolId, children[], class}; resource school:<id> | student:<id> | query."""
     ctx = context or {}
     role = principal.get("role")
     kind, _, rid = resource.partition(":")
@@ -31,26 +31,44 @@ def authorize(principal: dict, action: str, resource: str, context: dict | None 
     if role == "authority":
         return Decision.ALLOW
     if role == "principal":
-        if action == "view-briefing" and kind == "school":
+        if action in ("view-briefing", "publish-protocol", "run-briefing", "query") and kind == "school":
             return Decision.ALLOW if principal.get("schoolId") == rid else Decision.DENY
-        if action == "publish-protocol" and kind == "school":
-            return Decision.ALLOW if principal.get("schoolId") == rid else Decision.DENY
+        if action in ("report-uneasy", "log-day", "read-daylog") and kind == "student":
+            st = ctx.get("student", {})
+            return Decision.ALLOW if st.get("schoolId") == principal.get("schoolId") else Decision.DENY
+        if action == "query" and kind == "query":
+            return Decision.ALLOW
         return Decision.DENY
     if role == "teacher":
-        if action == "view-briefing":
+        if action in ("view-briefing", "publish-protocol"):
             return Decision.DENY  # school-level detail: principals only
-        if action == "report-uneasy" and kind == "student":
+        if action == "run-briefing" and kind == "school":
+            return Decision.ALLOW if principal.get("schoolId") == rid else Decision.DENY
+        if action in ("report-uneasy", "log-day", "read-daylog") and kind == "student":
             st = ctx.get("student", {})
             if st.get("schoolId") == principal.get("schoolId") and st.get("class") == principal.get("class"):
                 return Decision.ALLOW
             return Decision.DENY
+        if action == "query" and kind == "query":
+            return Decision.ALLOW
         return Decision.DENY
     if role in ("parent", "student"):
-        if action == "view-briefing":
+        if action in ("view-briefing", "publish-protocol"):
             return Decision.DENY
-        if action == "report-uneasy" and kind == "student":
+        if action == "run-briefing" and kind == "school":
+            # scoped context only (own children); data builder enforces the rest
+            if principal.get("schoolId") == rid and (principal.get("children") or []):
+                return Decision.ALLOW
+            return Decision.DENY
+        if action in ("report-uneasy", "read-daylog") and kind == "student":
             if rid in (principal.get("children") or []):
                 return Decision.ALLOW
             return Decision.DENY
+        if action == "log-day" and kind == "student":
+            if role == "parent" and rid in (principal.get("children") or []):
+                return Decision.ALLOW
+            return Decision.DENY
+        if action == "query" and kind == "query":
+            return Decision.ALLOW
         return Decision.DENY
     return Decision.DENY
