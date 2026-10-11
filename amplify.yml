@@ -1,0 +1,22 @@
+version: 1
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - bun install
+        build:
+          commands:
+            - bun run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+    env:
+      variables:
+        NEXT_PUBLIC_API_URL: https://YOUR_HTTP_API.execute-api.us-west-2.amazonaws.com

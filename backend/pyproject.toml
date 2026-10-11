@@ -9,7 +9,10 @@ dependencies = [
   "uvicorn>=0.30",
   "pydantic>=2.0",
   "httpx>=0.27",
-  # Agent + authz upgrade path (optional until creds exist):
-  # "strands-agents>=1.0",
-  # "cedarpy",  # local Cedar eval; prod uses Amazon Verified Permissions
+  "numpy>=2.0",
+  "opencv-python-headless>=4.0",
+  "strands-agents>=1.0",
+  # Cedar tool-gate inside agents needs the extra:
+  # pip install "strands-agents[cedar]"
+  # Prod Verified Permissions consumes app/authz/*.cedar as-is.
 ]
